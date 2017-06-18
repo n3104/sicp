@@ -4,6 +4,7 @@ http://sicp.iijlab.net/ の問題の答えを載せています。
 
 * DrRacketを利用しています。
 * https://wizardbook.wordpress.com/ を参考にしつつ、実際に実行できるように全コードを載せています。
+* 問題 2.87 以降について公開しています。過去分は気が向いたら公開します。
 
 ## DrRacketについて
 Download Racket
