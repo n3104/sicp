@@ -407,14 +407,14 @@
                (list p1 p2))))
 
   ; 問題 2.87
-  ; term-listの全coeffが zero? を満たすかチェックようにした。
+  ; term-listの全coeffが zero? を満たすかチェックするようにした。
   (define (=zero-poly? p)
     (define (=zero-term-list? L)
       (if (empty-termlist? L)
           true ; 全要素が zero? を満たした際は true を返す。
           (if (zero? (coeff (first-term L)))
               (=zero-term-list? (rest-terms L)) ; 後続の要素を再帰的にチェックする。
-              false))) ; zero? を満たさない要素がさればその時点で処理を打ち切り false を返す。
+              false))) ; zero? を満たさない要素があればその時点で処理を打ち切り false を返す。
     (=zero-term-list? (term-list p)))
   
    ;; システムの他の部分とのインターフェース
