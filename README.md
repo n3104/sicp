@@ -15,7 +15,6 @@ https://download.racket-lang.org/
 * 起動後は[言語]-[Other]-[R5RS]にするだけ。 -> 言語はデフォルトの The Racket Language のままでいい。
     * R5RS だと true, false の定義などが存在しない。後述の planet neil/sicp を利用する。
     * デフォルトのThe Racket Languageが #lang を利用するという意味になる模様。
-        * 定義を上書きできないけど、r5rs使うよりはマシなので、再定義無しの運用とする。
 * ソースの先頭に以下を追加する。
     * #lang planet neil/sicp
     * http://www.neilvandyke.org/racket/sicp/
