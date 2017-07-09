@@ -21,3 +21,10 @@ https://download.racket-lang.org/
 * ステップ実行も出来て、実行時エラーもどこで失敗したかも分かり、とても使いやすい！
     * まずデバッグ実行する。この状態でステップ実行が可能になる。
     * ブレークポイントはデバッグ実行中にソースコードをマウスオーバーすると赤い点がでるので、そこを右クリックすればいい。
+
+### neil/sicpについて
+[http://planet.racket-lang.org/package-source/neil/sicp.plt/1/18/main.rkt](http://planet.racket-lang.org/package-source/neil/sicp.plt/1/18/main.rkt) がソースファイル。ここを読むといろいろ分かる。
+
+* 先頭に #lang r5rs と書かれているように、neil/sicp は r5rs ベース。
+	* 同じ名前で<code>define</code>は出来ない。再定義する場合は<code>set!</code>を利用する。関数も再定義可能。
+* [sicp/e_3_06.rkt at master · n3104/sicp](https://github.com/n3104/sicp/blob/master/e_3_06.rkt) に記載しているように<code>#%require</code>を用いることでracket/base から任意の関数を追加可能。
