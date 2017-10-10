@@ -15,12 +15,12 @@
 (define (front-queue queue)
   (if (empty-queue? queue)
       (error "FRONT called with an empty queue" queue)
-      (car (front-ptr queue))))
+      (caar (front-ptr queue))))
 
 (define (rear-queue queue)
   (if (empty-queue? queue)
-      (error "FRONT called with an empty queue" queue)
-      (car (front-ptr queue))))
+      (error "REAR called with an empty queue" queue)
+      (caar (rear-ptr queue))))
 
 (define (front-insert-queue! queue item)
   (let ((new-front (cons (cons item nil) (front-ptr queue))))
@@ -77,14 +77,50 @@
  
 (define q (make-queue))
 (print-queue (front-insert-queue! q 'a))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (front-insert-queue! q 'b))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (rear-insert-queue! q 'c))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (rear-insert-queue! q 'd))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (front-insert-queue! q 'e))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (rear-insert-queue! q 'f))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (front-delete-queue! q))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (front-delete-queue! q))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (rear-delete-queue! q))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (rear-delete-queue! q))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (front-delete-queue! q))
+(front-queue q)
+(rear-queue q)
+
 (print-queue (rear-delete-queue! q))
+; 以下はエラーになる。
+;(front-queue q)
+;(rear-queue q)
