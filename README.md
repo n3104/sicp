@@ -13,7 +13,7 @@ https://download.racket-lang.org/
 * ダウンロードして展開し、アプリケーションにコピーするだけ。
     * DrRacket以外にも関係ないものがいくつかインストールされるのが気になるが。。
 * 起動後は[言語]の設定はデフォルトのThe Racket Languageのままでいい。
-    * デフォルトのThe Racket Languageが<code>#lang</code>を利用してソースファイル内で実行する言語を指定するという意味になる模様。
+    * デフォルトのThe Racket Languageが<code>#lang</code>を利用してソースファイル内で実行する言語を指定するという意味になる模様。
 * ソースの先頭に以下を追加する。
     * <code>#lang planet neil/sicp</code>
     * http://www.neilvandyke.org/racket/sicp/
