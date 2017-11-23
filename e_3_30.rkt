@@ -227,14 +227,16 @@
 
 
 ; 以下、自作
-(define (ripple-carry-adder a-list b-list s-list c-in)
-  (define (setup a-list b-list s-list c-in)
-    (if (and (null? a-list) (null? a-list) (null? s-list))
-        c-in
-        (let ((c-out (make-wire)))
-          (full-adder (car a-list) (car b-list) c-in (car s-list) c-out)
-          (setup (cdr a-list) (cdr b-list) (cdr s-list) c-out))))
-  (setup a-list b-list s-list c-in))
+(define (ripple-carry-adder a-list b-list s-list c-out)
+  (define (setup a-list b-list s-list c-in c-out-local)
+    (cond ((null? (cdr a-list))
+           (full-adder (car a-list) (car b-list) c-in (car s-list) c-out)
+           'ok)
+          (else
+           (full-adder (car a-list) (car b-list) c-in (car s-list) c-out-local)
+           (setup (cdr a-list) (cdr b-list) (cdr s-list) c-out-local (make-wire)))))
+  ; a-list, b-list, s-list の要素数が一致するかの入力チェックは省いた。
+  (setup a-list b-list s-list (make-wire) (make-wire)))
 
 
 ; 以下、動作確認
@@ -242,74 +244,47 @@
 (define in-a2 (make-wire))
 (define in-b1 (make-wire))
 (define in-b2 (make-wire))
-(define in-carry (make-wire))
 (define out-sum1 (make-wire))
 (define out-sum2 (make-wire))
+(define out-carry (make-wire))
+(ripple-carry-adder (list in-a1 in-a2) (list in-b1 in-b2) (list out-sum1 out-sum2) out-carry)
 
-(define out-carry (ripple-carry-adder (list in-a1 in-a2) (list in-b1 in-b2) (list out-sum1 out-sum2) in-carry))
-
-; 0b11 + 0b11 + 0b0 -> 0b110
+; 0b11 + 0b11 -> 0b110
 (set-signal! in-a1 1)
 (set-signal! in-a2 1)
 (set-signal! in-b1 1)
 (set-signal! in-b2 1)
-(set-signal! in-carry 0)
 (propagate)
 (get-signal out-carry)
-(get-signal out-sum1)
 (get-signal out-sum2)
-
-; 0b11 + 0b11 + 0b1 -> 0b111
-(set-signal! in-a1 1)
-(set-signal! in-a2 1)
-(set-signal! in-b1 1)
-(set-signal! in-b2 1)
-(set-signal! in-carry 1)
-(propagate)
-(get-signal out-carry)
 (get-signal out-sum1)
-(get-signal out-sum2)
 
-; 0b00 + 0b00 + 0b0 -> 0b000
+; 0b00 + 0b00 -> 0b000
 (set-signal! in-a1 0)
 (set-signal! in-a2 0)
 (set-signal! in-b1 0)
 (set-signal! in-b2 0)
-(set-signal! in-carry 0)
 (propagate)
 (get-signal out-carry)
-(get-signal out-sum1)
 (get-signal out-sum2)
+(get-signal out-sum1)
 
-; 0b01 + 0b10 + 0b0 -> 0b011
+; 0b01 + 0b10 -> 0b011
 (set-signal! in-a1 0)
 (set-signal! in-a2 1)
 (set-signal! in-b1 1)
 (set-signal! in-b2 0)
-(set-signal! in-carry 0)
 (propagate)
 (get-signal out-carry)
-(get-signal out-sum1)
 (get-signal out-sum2)
+(get-signal out-sum1)
 
-; 0b10 + 0b01 + 0b0 -> 0b011
+; 0b10 + 0b01 -> 0b011
 (set-signal! in-a1 1)
 (set-signal! in-a2 0)
 (set-signal! in-b1 0)
 (set-signal! in-b2 1)
-(set-signal! in-carry 0)
 (propagate)
 (get-signal out-carry)
-(get-signal out-sum1)
 (get-signal out-sum2)
-
-; 0b10 + 0b01 + 0b1 -> 0b100
-(set-signal! in-a1 1)
-(set-signal! in-a2 0)
-(set-signal! in-b1 0)
-(set-signal! in-b2 1)
-(set-signal! in-carry 1)
-(propagate)
-(get-signal out-carry)
 (get-signal out-sum1)
-(get-signal out-sum2)
