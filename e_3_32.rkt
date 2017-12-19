@@ -178,14 +178,6 @@
 (define and-gate-delay 3)
 (define or-gate-delay 5)
 
-(define input-1 (make-wire))
-(define input-2 (make-wire))
-(define sum (make-wire))
-(define carry (make-wire))
-
-(probe 'sum sum)
-(probe 'carry carry)
-
 (define (half-adder a b s c)
   (let ((d (make-wire)) (e (make-wire)))
     (or-gate a b d)
@@ -256,65 +248,31 @@
   'or-gate-ok)
 
 
-; 以下、自作
-(define (ripple-carry-adder a-list b-list s-list c-out)
-  (define (setup a-list b-list s-list c-in c-out-local)
-    (cond ((null? (cdr a-list))
-           (full-adder (car a-list) (car b-list) c-in (car s-list) c-out)
-           'ok)
-          (else
-           (full-adder (car a-list) (car b-list) c-in (car s-list) c-out-local)
-           (setup (cdr a-list) (cdr b-list) (cdr s-list) c-out-local (make-wire)))))
-  ; a-list, b-list, s-list の要素数が一致するかの入力チェックは省いた。
-  (setup a-list b-list s-list (make-wire) (make-wire)))
-
-
 ; 以下、動作確認
-(define in-a1 (make-wire))
-(define in-a2 (make-wire))
-(define in-b1 (make-wire))
-(define in-b2 (make-wire))
-(define out-sum1 (make-wire))
-(define out-sum2 (make-wire))
-(define out-carry (make-wire))
-(ripple-carry-adder (list in-a1 in-a2) (list in-b1 in-b2) (list out-sum1 out-sum2) out-carry)
+(define a1 (make-wire))
+(define a2 (make-wire))
+(define output (make-wire))
 
-; 0b11 + 0b11 -> 0b110
-(set-signal! in-a2 1)
-(set-signal! in-a1 1)
-(set-signal! in-b2 1)
-(set-signal! in-b1 1)
-(propagate)
-(get-signal out-carry)
-(get-signal out-sum2)
-(get-signal out-sum1)
+(and-gate a1 a2 output)
 
-; 0b00 + 0b00 -> 0b000
-(set-signal! in-a2 0)
-(set-signal! in-a1 0)
-(set-signal! in-b2 0)
-(set-signal! in-b1 0)
+; 0b1 + 0b1 -> 0b1 にならない。これはLIFOで最後に評価されるのが and-gate 呼び出し時の action であるため。
+(set-signal! a1 1)
+(set-signal! a2 1)
 (propagate)
-(get-signal out-carry)
-(get-signal out-sum2)
-(get-signal out-sum1)
+(get-signal output)
 
-; 0b10 + 0b01 -> 0b011
-(set-signal! in-a2 1)
-(set-signal! in-a1 0)
-(set-signal! in-b2 0)
-(set-signal! in-b1 1)
+; 一度クリアする。
+(set-signal! a1 0)
+(set-signal! a2 0)
 (propagate)
-(get-signal out-carry)
-(get-signal out-sum2)
-(get-signal out-sum1)
+(get-signal output)
 
-; 0b01 + 0b10 -> 0b011
-(set-signal! in-a2 0)
-(set-signal! in-a1 1)
-(set-signal! in-b2 1)
-(set-signal! in-b1 0)
+; まずは a1 のみフラグを立てる。
+(set-signal! a1 1)
 (propagate)
-(get-signal out-carry)
-(get-signal out-sum2)
-(get-signal out-sum1)
+(get-signal output)
+
+; a2 のみフラグを立てる。この場合 deque には 1 つだけ action が登録されているため output が 1 になる。
+(set-signal! a2 1)
+(propagate)
+(get-signal output)
