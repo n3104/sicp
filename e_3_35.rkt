@@ -185,10 +185,11 @@
             (set-value! a
                         (sqrt (get-value b))
                         me))
-        (cond ((has-value? a)
+        (if (has-value? a)
                (set-value! b
                            (* (get-value a) (get-value a))
-                           me)))))
+                           me)
+               nil)))
   (define (process-forget-value)
     (forget-value! a me)
     (forget-value! b me)
