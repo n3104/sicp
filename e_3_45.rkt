@@ -67,6 +67,7 @@
 ; 以下、動作確認
 (define account1 (make-account-and-serializer 200))
 (define account2 (make-account-and-serializer 100))
+; 以下は動作する。
 (deposit account1 50)
-; 以下の処理は完了しない。
+; 以下は処理が完了しない。同じ balance-serializer が2度呼ばれるため (mutex 'acquire) が無限ループする。
 (serialized-exchange account1 account2)
