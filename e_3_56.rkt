@@ -49,10 +49,10 @@
 (define S (cons-stream
            1
            (merge
-            (scale-stream integers 2)
+            (scale-stream S 2)
             (merge
-             (scale-stream integers 3)
-             (scale-stream integers 5)))))
+             (scale-stream S 3)
+             (scale-stream S 5)))))
 
 ; 以下、動作確認
 (for ([i 20])
