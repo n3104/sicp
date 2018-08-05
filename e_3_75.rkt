@@ -33,7 +33,6 @@
 (define (add-streams s1 s2)
   (stream-map + s1 s2))
 
-; 以下、追加実装
 (define (sign-change-detector v1 v2)
   (cond
     ((and (>= v1 0) (>= v2 0)) (list v1 v2 0))
@@ -45,6 +44,7 @@
 (define sense-data
   (cons-stream 1 (cons-stream 2 (cons-stream -2 (cons-stream -1 (cons-stream 0 (cons-stream 1 the-empty-stream)))))))
 
+; 以下、追加実装
 (define (make-zero-crossings input-stream last-value last-avpt)
   (let ((avpt (/ (+ (stream-car input-stream) last-value) 2)))
     (cons-stream (sign-change-detector avpt last-avpt)
@@ -55,7 +55,6 @@
 (define zero-crossings (make-zero-crossings sense-data 0 0))
 
 ; 以下、動作確認
-(display-line 'zero-crossings)
 (for ([index 6])
   (display-line
    (stream-ref
