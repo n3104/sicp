@@ -17,11 +17,6 @@
        (apply stream-map
               (cons proc (map stream-cdr argstreams))))))
 
-(define (integers-starting-from n)
-  (cons-stream n (integers-starting-from (+ n 1))))
-
-(define integers (integers-starting-from 1))
-
 (define (stream-for-each proc s)
   (if (stream-null? s)
       'done
@@ -34,12 +29,6 @@
 (define (display-line x)
   (display x)
   (newline))
-
-(define (scale-stream stream factor)
-  (stream-map (lambda (x) (* x factor)) stream))
-
-(define (add-streams s1 s2)
-  (stream-map + s1 s2))
 
 ; 以下、追加実装
 ; https://wizardbook.wordpress.com/2010/12/23/exercise-3-81/
@@ -78,7 +67,6 @@
 
 ; 以下、動作確認
 (#%require (only racket/base for))
-(#%require (only racket/stream stream))
 (define seed 1)
 (define (list->stream items)
   (if (null? items)
