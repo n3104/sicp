@@ -340,5 +340,23 @@
          (error "Unknown expression type -- EVAL" exp))))
 
 ; 以下、動作確認
+(#%require (only rackunit check-equal?))
+
 ; Unbound variable define というエラーになる。
-(eval '(define x 3) the-global-environment)
+(#%require (only racket/base with-handlers))
+(#%require (only racket/base exn:fail?))
+(#%require (only racket/exn exn->string))
+(with-handlers ([exn:fail? (lambda (exn) (check-equal? (exn->string exn) "Unbound variable define\n"))])
+ (eval '(define x 3) the-global-environment))
+
+; define が利用できないため、以降もすべて動作しない。
+;(check-equal? (eval '(+ x 2) the-global-environment) 5)
+;(check-equal? (eval '(quote x) the-global-environment) 'x)
+;(check-equal? (eval '(set! x 5) the-global-environment) 'eval-assignment)
+;(check-equal? (eval '(+ x 2) the-global-environment) 7)
+;(check-equal? (eval '(if true x) the-global-environment) 5)
+;(check-equal? (eval '(begin (+ x 2)(- x 2)) the-global-environment) 3)
+;(check-equal? (eval '((lambda (y) (+ y y)) x) the-global-environment) 10)
+;(check-equal? (eval '(cond ((eq? x 5) x)(else false)) the-global-environment) 5)
+;(check-equal? (eval '(cond ((eq? x 4) x)(else false)) the-global-environment) false)
+(display 'ok)
