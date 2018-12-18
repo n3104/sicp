@@ -354,7 +354,8 @@
       (cond ((null? vars)
              (env-loop (enclosing-environment env)))
             ((eq? var (car vars))
-             (set-car! vars nil)) ; 簡易的に削除した場合は vars に nil を入れる。
+             (set-car! vars nil) ; 簡易的に削除した場合は vars と vals に nil を入れる。
+             (set-car! vals nil))
             (else (scan (cdr vars) (cdr vals)))))
     (if (eq? env the-empty-environment)
         (error "Unbound variable -- unbind!" var)
