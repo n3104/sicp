@@ -349,21 +349,16 @@
   'eval-unbind)
 
 (define (unbind-variable! var env)
-  (define (env-loop env)
+  (let ((frame (first-frame env)))
     (define (scan vars vals)
       (cond ((null? vars)
-             (env-loop (enclosing-environment env)))
+             (error "Unbound variable -- unbind!" var))
             ((eq? var (car vars))
              (set-car! vars nil) ; 簡易的に削除した場合は vars と vals に nil を入れる。
              (set-car! vals nil))
             (else (scan (cdr vars) (cdr vals)))))
-    (if (eq? env the-empty-environment)
-        (error "Unbound variable -- unbind!" var)
-        (let ((frame (first-frame env)))
-          (scan (frame-variables frame)
-                (frame-values frame)))))
-  (env-loop env))
-
+    (scan (frame-variables frame)
+          (frame-values frame))))
 
 ; 以下、動作確認
 (#%require (only rackunit check-equal?))
