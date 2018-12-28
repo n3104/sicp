@@ -333,7 +333,7 @@
          (eval-sequence (begin-actions exp) env))
         ((and? exp) 
          (eval-and (and-actions exp) env))
-        ((or exp) 
+        ((or? exp) 
          (eval-or (or-actions exp) env))
         ((cond? exp) (eval (cond->if exp) env))
         ((application? exp)
@@ -354,7 +354,7 @@
                   false))))
 
 ; or
-(define (or exp) (tagged-list? exp 'or))
+(define (or? exp) (tagged-list? exp 'or))
 
 (define (or-actions exp) (cdr exp))
 
