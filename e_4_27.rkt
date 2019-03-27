@@ -284,7 +284,47 @@
 
 (define apply-in-underlying-scheme apply)
 
+; https://wizardbook.wordpress.com/2010/12/26/exercise-4-6/
+
+(define (let-initials exp) 
+  (map cadr (cadr exp)))
+(define (let-parameters exp)
+  (map car (cadr exp)))
+(define (let-body exp)
+  (cddr exp))
+   
+; a let is syntactic sugar for
+;   ((lambda (params) (body)) values)
+(define (let->combination exp)
+  (cons (make-lambda (let-parameters exp) 
+                     (let-body exp))
+        (let-initials exp)))
+ 
+(define (let? exp) (tagged-list? exp 'let))
+
 ; https://sicp.iijlab.net/fulltext/x422.html
+
+(define (eval exp env)
+  (cond ((self-evaluating? exp) exp)
+        ((variable? exp) (lookup-variable-value exp env))
+        ((quoted? exp) (text-of-quotation exp))
+        ((assignment? exp) (eval-assignment exp env))
+        ((definition? exp) (eval-definition exp env))
+        ((if? exp) (eval-if exp env))
+        ((lambda? exp)
+         (make-procedure (lambda-parameters exp)
+                         (lambda-body exp)
+                         env))
+        ((let? exp) (eval (let->combination exp) env))
+        ((begin? exp) 
+         (eval-sequence (begin-actions exp) env))
+        ((cond? exp) (eval (cond->if exp) env))
+        ((application? exp)
+         (apply-eval-procedure (actual-value (operator exp) env)
+                               (operands exp)
+                               env))
+        (else
+         (error "Unknown expression type -- EVAL" exp))))
 
 (define (actual-value exp env)
   (force-it (eval exp env)))
@@ -340,48 +380,6 @@
 
 (define (thunk-env thunk) (caddr thunk))
 
-(define (eval exp env)
-  (cond ((self-evaluating? exp) exp)
-        ((variable? exp) (lookup-variable-value exp env))
-        ((quoted? exp) (text-of-quotation exp))
-        ((assignment? exp) (eval-assignment exp env))
-        ((definition? exp) (eval-definition exp env))
-        ((if? exp) (eval-if exp env))
-        ((lambda? exp)
-         (make-procedure (lambda-parameters exp)
-                         (lambda-body exp)
-                         env))
-        ((let? exp) (eval (let->combination exp) env))
-        ((begin? exp) 
-         (eval-sequence (begin-actions exp) env))
-        ((cond? exp) (eval (cond->if exp) env))
-        ((application? exp)
-         (apply-eval-procedure (actual-value (operator exp) env)
-                (operands exp)
-                env))
-        (else
-         (error "Unknown expression type -- EVAL" exp))))
-
-
-; 以下、追加実装
-
-; https://wizardbook.wordpress.com/2010/12/26/exercise-4-6/
-(define (let-initials exp) 
-  (map cadr (cadr exp)))
-(define (let-parameters exp)
-  (map car (cadr exp)))
-(define (let-body exp)
-  (cddr exp))
-   
-; a let is syntactic sugar for
-;   ((lambda (params) (body)) values)
-(define (let->combination exp)
-  (cons (make-lambda (let-parameters exp) 
-                     (let-body exp))
-        (let-initials exp)))
- 
-(define (let? exp) (tagged-list? exp 'let))
-
 ; 以下、動作確認
 ; 回帰テスト
 (#%require (only rackunit check-equal?))
@@ -395,7 +393,14 @@
 (check-equal? (actual-value '((lambda (y) (+ y y)) x) the-global-environment) 10)
 (check-equal? (actual-value '(cond ((eq? x 5) x)(else false)) the-global-environment) 5)
 (check-equal? (actual-value '(cond ((eq? x 4) x)(else false)) the-global-environment) false)
+(check-equal? (actual-value '(let ((y x)) (+ y y)) the-global-environment) 10)
 
 ; 追加実装箇所
-(check-equal? (actual-value '(let ((y x)) (+ y y)) the-global-environment) 10)
+(check-equal? (actual-value '(define count 0) the-global-environment) 'eval-definition)
+(check-equal? (actual-value '(define (id x) (set! count (+ count 1)) x) the-global-environment) 'eval-definition)
+(check-equal? (actual-value '(define w (id (id 10))) the-global-environment) 'eval-definition)
+(check-equal? (actual-value 'count the-global-environment) 1) ; 作用的順序の場合は 2 になる。
+(check-equal? (actual-value 'w the-global-environment) 10)
+(check-equal? (actual-value 'count the-global-environment) 2)
+
 (display 'ok)
