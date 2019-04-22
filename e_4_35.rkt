@@ -234,7 +234,13 @@
         (list 'null? null?)
         (list '+ +)
         (list '- -)
+        (list '* *)
+        (list '= =)
+        (list '> >)
         (list 'eq? eq?)
+        (list 'not not)
+        (list 'remainder remainder)
+        (list 'list list)
         ;⟨基本手続きが続く⟩
         ))
 
@@ -462,5 +468,52 @@
 
 ; 追加実装箇所
 ; TODO
+
+(check-equal? (eval
+               '(define (require p)
+                  (if (not p) (amb)))
+               the-global-environment) 'ok)
+
+(check-equal? (eval
+               '(define (an-element-of items)
+                  (require (not (null? items)))
+                  (amb (car items) (an-element-of (cdr items))))
+               the-global-environment) 'ok)
+
+(check-equal? (eval
+               '(define (prime? n)
+                  (= n (smallest-divisor n)))
+               the-global-environment) 'ok)
+
+(check-equal? (eval
+               '(define (smallest-divisor n)
+                  (find-divisor n 2))
+               the-global-environment) 'ok)
+
+(check-equal? (eval
+               '(define (find-divisor n test-divisor)
+                  (cond ((> (square test-divisor) n) n)
+                        ((divides? test-divisor n) test-divisor)
+                        (else (find-divisor n (+ test-divisor 1)))))
+               the-global-environment) 'ok)
+
+(check-equal? (eval
+               '(define (divides? a b)
+                  (= (remainder b a) 0))
+               the-global-environment) 'ok)
+
+(check-equal? (eval
+               '(define (square x) (* x x))
+               the-global-environment) 'ok)
+
+(check-equal? (eval
+               '(define (prime-sum-pair list1 list2)
+                  (let ((a (an-element-of list1))
+                        (b (an-element-of list2)))
+                    (require (prime? (+ a b)))
+                    (list a b)))
+               the-global-environment) 'ok)
+
+(check-equal? (eval '(prime-sum-pair '(1 3 5 8) '(20 35 110)) the-global-environment) '(3 20))
 
 (display 'ok)
