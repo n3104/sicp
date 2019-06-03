@@ -444,48 +444,48 @@
                              (try-next (cdr choices))))))
       (try-next cprocs))))
 
-; 既存と同じように動作するように eval を作成した。
-(define (eval exp env)
-  (ambeval exp env
+; 既存と同じように動作するように eval を作成した。また env は the-global-environment 固定とした。
+(define (eval exp)
+  (ambeval exp the-global-environment
            (lambda (value fail) value)
            (lambda () 'failed)))
 
 ; 以下、動作確認
 ; 回帰テスト
 (#%require (only rackunit check-equal?))
-(check-equal? (eval '(define x 3) the-global-environment) 'ok)
-(check-equal? (eval '(+ x 2) the-global-environment) 5)
-(check-equal? (eval '(quote x) the-global-environment) 'x)
-(check-equal? (eval '(set! x 5) the-global-environment) 'ok)
-(check-equal? (eval '(+ x 2) the-global-environment) 7)
-(check-equal? (eval '(if true x) the-global-environment) 5)
-(check-equal? (eval '(begin (+ x 2)(- x 2)) the-global-environment) 3)
-(check-equal? (eval '((lambda (y) (+ y y)) x) the-global-environment) 10)
-(check-equal? (eval '(cond ((eq? x 5) x)(else false)) the-global-environment) 5)
-(check-equal? (eval '(cond ((eq? x 4) x)(else false)) the-global-environment) false)
-(check-equal? (eval '(let ((y x)) (+ y y)) the-global-environment) 10)
+(check-equal? (eval '(define x 3)) 'ok)
+(check-equal? (eval '(+ x 2)) 5)
+(check-equal? (eval '(quote x)) 'x)
+(check-equal? (eval '(set! x 5)) 'ok)
+(check-equal? (eval '(+ x 2)) 7)
+(check-equal? (eval '(if true x)) 5)
+(check-equal? (eval '(begin (+ x 2)(- x 2))) 3)
+(check-equal? (eval '((lambda (y) (+ y y)) x)) 10)
+(check-equal? (eval '(cond ((eq? x 5) x)(else false))) 5)
+(check-equal? (eval '(cond ((eq? x 4) x)(else false))) false)
+(check-equal? (eval '(let ((y x)) (+ y y))) 10)
 
 ; 追加実装箇所
-(check-equal? (eval
-               '(define (require p)
-                  (if (not p) (amb)))
-               the-global-environment) 'ok)
+(eval
+ '(define (require p)
+    (if (not p) (amb)))
+ )
 
-(check-equal? (eval
-               '(define (an-integer-between low high)
-                  (require (<= low high))
-                  (amb low (an-integer-between (+ low 1) high)))
-               the-global-environment) 'ok)
+(eval
+ '(define (an-integer-between low high)
+    (require (<= low high))
+    (amb low (an-integer-between (+ low 1) high)))
+ )
 
-(check-equal? (eval
-               '(define (a-pythagorean-triple-between low high)
-                  (let ((i (an-integer-between low high)))
-                    (let ((j (an-integer-between i high)))
-                      (let ((k (an-integer-between j high)))
-                        (require (= (+ (* i i) (* j j)) (* k k)))
-                        (list i j k)))))
-               the-global-environment) 'ok)
+(eval
+ '(define (a-pythagorean-triple-between low high)
+    (let ((i (an-integer-between low high)))
+      (let ((j (an-integer-between i high)))
+        (let ((k (an-integer-between j high)))
+          (require (= (+ (* i i) (* j j)) (* k k)))
+          (list i j k)))))
+ )
 
-(check-equal? (eval '(a-pythagorean-triple-between 3 5) the-global-environment) '(3 4 5))
+(check-equal? (eval '(a-pythagorean-triple-between 3 5)) '(3 4 5))
 
-(display 'ok)
+(display '"all ok")
