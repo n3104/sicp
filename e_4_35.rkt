@@ -237,6 +237,7 @@
         (list '* *)
         (list '= =)
         (list '> >)
+        (list '<= <=)
         (list 'eq? eq?)
         (list 'not not)
         (list 'remainder remainder)
@@ -277,8 +278,6 @@
         (let-initials exp)))
  
 (define (let? exp) (tagged-list? exp 'let))
-
-; 以下、追加実装
 
 ; https://sicp.iijlab.net/fulltext/x433.html
 (define (analyze exp)
@@ -467,53 +466,26 @@
 (check-equal? (eval '(let ((y x)) (+ y y)) the-global-environment) 10)
 
 ; 追加実装箇所
-; TODO
-
 (check-equal? (eval
                '(define (require p)
                   (if (not p) (amb)))
                the-global-environment) 'ok)
 
 (check-equal? (eval
-               '(define (an-element-of items)
-                  (require (not (null? items)))
-                  (amb (car items) (an-element-of (cdr items))))
+               '(define (an-integer-between low high)
+                  (require (<= low high))
+                  (amb low (an-integer-between (+ low 1) high)))
                the-global-environment) 'ok)
 
 (check-equal? (eval
-               '(define (prime? n)
-                  (= n (smallest-divisor n)))
+               '(define (a-pythagorean-triple-between low high)
+                  (let ((i (an-integer-between low high)))
+                    (let ((j (an-integer-between i high)))
+                      (let ((k (an-integer-between j high)))
+                        (require (= (+ (* i i) (* j j)) (* k k)))
+                        (list i j k)))))
                the-global-environment) 'ok)
 
-(check-equal? (eval
-               '(define (smallest-divisor n)
-                  (find-divisor n 2))
-               the-global-environment) 'ok)
-
-(check-equal? (eval
-               '(define (find-divisor n test-divisor)
-                  (cond ((> (square test-divisor) n) n)
-                        ((divides? test-divisor n) test-divisor)
-                        (else (find-divisor n (+ test-divisor 1)))))
-               the-global-environment) 'ok)
-
-(check-equal? (eval
-               '(define (divides? a b)
-                  (= (remainder b a) 0))
-               the-global-environment) 'ok)
-
-(check-equal? (eval
-               '(define (square x) (* x x))
-               the-global-environment) 'ok)
-
-(check-equal? (eval
-               '(define (prime-sum-pair list1 list2)
-                  (let ((a (an-element-of list1))
-                        (b (an-element-of list2)))
-                    (require (prime? (+ a b)))
-                    (list a b)))
-               the-global-environment) 'ok)
-
-(check-equal? (eval '(prime-sum-pair '(1 3 5 8) '(20 35 110)) the-global-environment) '(3 20))
+(check-equal? (eval '(a-pythagorean-triple-between 3 5) the-global-environment) '(3 4 5))
 
 (display 'ok)
