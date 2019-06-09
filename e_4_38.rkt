@@ -449,8 +449,16 @@
 ; 既存と同じように動作するように eval を作成した。また env は the-global-environment 固定とした。
 (define (eval exp)
   (ambeval exp the-global-environment
-           (lambda (value fail) value)
+           (lambda (value next-alternative)
+             (set! global-next-alternative next-alternative)
+             value)
            (lambda () 'failed)))
+
+; try-again を実装するため global-next-alternative 変数を用意した。
+(define global-next-alternative nil)
+
+(define (try-again)
+  (global-next-alternative))
 
 ; 以下、動作確認
 ; 回帰テスト
@@ -495,7 +503,7 @@
       (require (not (= fletcher 5)))
       (require (not (= fletcher 1)))
       (require (> miller cooper))
-      (require (not (= (abs (- smith fletcher)) 1)))
+;      (require (not (= (abs (- smith fletcher)) 1)))
       (require (not (= (abs (- fletcher cooper)) 1)))
       (list (list 'baker baker)
             (list 'cooper cooper)
@@ -504,6 +512,11 @@
             (list 'smith smith))))
  )
 
-(check-equal? (eval '(multiple-dwelling)) '((baker 3) (cooper 2) (fletcher 4) (miller 5) (smith 1)))
+(eval '(multiple-dwelling))
+(try-again)
+(try-again)
+(try-again)
+(try-again)
+(check-equal? (try-again) 'failed) ; つまり 5 回
 
 (display '"all ok")
