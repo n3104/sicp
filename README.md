@@ -27,3 +27,6 @@ https://download.racket-lang.org/
 * 先頭に #lang r5rs と書かれているように、neil/sicp は r5rs ベース。
 	* 同じ名前で<code>define</code>は出来ない。再定義する場合は<code>set!</code>を利用する。関数も再定義できる。
 * [sicp/e_3_06.rkt at master · n3104/sicp](https://github.com/n3104/sicp/blob/master/e_3_06.rkt) に記載しているように<code>#%require</code>を用いることで racket/base などRacketの任意の関数を追加できる。
+* [sicp/e_4_55.rkt at master · n3104/sicp · GitHub](https://github.com/n3104/sicp/blob/master/e_4_55.rkt) に記載しているよう<code>include</code>を用いることでコードを外部ファイル化できる。
+	* 読み込み対象である [sicp/c_4_4.rkt at master · n3104/sicp](https://github.com/n3104/sicp/blob/master/c_4_4.rkt) の先頭の<code>#lang</code>はコメントアウトする必要があった。そのままにしておくとエラーになった。
+	* [12.10 File Inclusion](https://docs.racket-lang.org/reference/include.html) が公式ドキュメント。
