@@ -30,3 +30,6 @@ https://download.racket-lang.org/
 * [sicp/e_4_55.rkt at master · n3104/sicp · GitHub](https://github.com/n3104/sicp/blob/master/e_4_55.rkt) に記載しているよう<code>include</code>を用いることでコードを外部ファイル化できる。
 	* 読み込み対象である [sicp/c_4_4.rkt at master · n3104/sicp](https://github.com/n3104/sicp/blob/master/c_4_4.rkt) の先頭の<code>#lang</code>はコメントアウトする必要があった。そのままにしておくとエラーになった。
 	* [12.10 File Inclusion](https://docs.racket-lang.org/reference/include.html) が公式ドキュメント。
+* [sicp/e_4_55.rkt at master · n3104/sicp · GitHub](https://github.com/n3104/sicp/blob/master/e_4_55.rkt) に記載しているようにシンボルをケースセンシティブにしたい場合はシンボルの先頭に `#cs` を付与する必要がある。
+	* [1.3 The Reader](https://docs.racket-lang.org/reference/reader.html#%28part._parse-symbol%29) が公式ドキュメント。
+	* [13.4 Reading](https://docs.racket-lang.org/reference/Reading.html#%28def._%28%28quote._~23~25kernel%29._read-case-sensitive%29%29) に記載のある `read-case-sensitive` 関数でケースセンシティブに評価するかどうかを本来は指定可能だが、[3 R5RS Module Language](https://docs.racket-lang.org/r5rs/r5rs-mod.html)に記載の通り `(read-case-sensitive #f)` で初期化した上で変更できないようになっているので neil/sicp では個々のシンボルに `#cs` を付与する必要がある。
