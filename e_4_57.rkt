@@ -7,9 +7,8 @@
 (run-query #cs'(assert! (rule (replace ?person-1 ?person-2)
                               (and (job ?person-1 ?person-1-job)
                                    (job ?person-2 ?person-2-job)
-                                   (can-do-job ?person-1-job ?job1-can-do)
                                    (or (same ?person-1-job ?person-2-job)
-                                       (same ?job1-can-do ?person-2-job))
+                                       (can-do-job ?person-1-job ?person-2-job))
                                    (not (same ?person-1 ?person-2))))))
 
 ; a. Cy D. Fectに代れる人すべて;
