@@ -524,4 +524,7 @@
 (run-query #cs'(assert! (can-do-job (computer programmer) (computer programmer trainee))))
 (run-query #cs'(assert! (can-do-job (administration secretary) (administration big wheel))))
 
+; ruleの登録
+(run-query #cs'(assert! (rule (same ?x ?x))))
+
 ;(run-query #cs'(address ?x ?y))
