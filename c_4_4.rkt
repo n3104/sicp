@@ -519,5 +519,9 @@
 (run-query #cs'(assert! (job (Aull DeWitt) (administration secretary))))
 (run-query #cs'(assert! (salary (Aull DeWitt) 25000)))
 (run-query #cs'(assert! (supervisor (Aull DeWitt) (Warbucks Oliver))))
+(run-query #cs'(assert! (can-do-job (computer wizard) (computer programmer))))
+(run-query #cs'(assert! (can-do-job (computer wizard) (computer technician))))
+(run-query #cs'(assert! (can-do-job (computer programmer) (computer programmer trainee))))
+(run-query #cs'(assert! (can-do-job (administration secretary) (administration big wheel))))
 
 ;(run-query #cs'(address ?x ?y))
