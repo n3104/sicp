@@ -22,3 +22,6 @@
 ; テスト
 (run-query #cs'(reverse (1 (2 3) 4) ?x))
 (run-query #cs'(reverse (2 1 3 1) ?x))
+
+; 逆は動作しない。無限ループになる
+;(run-query #cs'(reverse ?x (2 1 3 1)))
