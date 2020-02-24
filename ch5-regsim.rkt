@@ -68,7 +68,7 @@
   ((stack 'push) value))
 
 ;;**monitored version from section 5.2.4
-(define (make-stack)
+(define (make-stack-with-monitor)
   (let ((s '())
         (number-pushes 0)
         (max-depth 0)
@@ -397,7 +397,7 @@
     (if val
         (cadr val)
         (error "Unknown operation -- ASSEMBLE" symbol))))
-
+
 ;; from 4.1
 (define (tagged-list? exp tag)
   (if (pair? exp)
