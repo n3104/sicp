@@ -26,3 +26,4 @@
 
 (#%require (only rackunit check-equal?))
 (check-equal? (get-register-contents factorial-machine 'product) 120)
+(display 'ok)
