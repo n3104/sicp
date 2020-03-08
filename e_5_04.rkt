@@ -36,13 +36,13 @@
    '(expt
      (assign counter (reg n))
      (assign product (const 1))
-     expt-iter
+     expt-loop
      (test (op =) (reg counter) (const 0))
-     (branch (label expt-iter-done))
+     (branch (label expt-done))
      (assign counter (op -) (reg counter) (const 1))
      (assign product (op *) (reg b) (reg product))
-     (goto (label expt-iter))
-     expt-iter-done)))
+     (goto (label expt-loop))
+     expt-done)))
 
 ; 動作確認
 (set-register-contents! recursive-expt-machine 'b 3)
