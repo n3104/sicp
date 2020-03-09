@@ -14,12 +14,10 @@
      (test (op =) (reg n) (const 0))
      (branch (label base-case))
      (save continue)
-     (save n)
      (assign n (op -) (reg n) (const 1))
      (assign continue (label after-expt))
      (goto (label expt-loop))
      after-expt
-     (restore n)
      (restore continue)
      (assign val (op *) (reg b) (reg val))   ; valに b^(n-1) がある
      (goto (reg continue))                   ; 呼出し側に戻る
