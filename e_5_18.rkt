@@ -11,12 +11,12 @@
       (cond ((eq? message 'get) contents)
             ((eq? message 'set)
              (lambda (value)
-               (begin
-                 ; レジスタをトレースする時は, レジスタへの値の代入では, レジスタ名, レジスタの古い内容と代入する新しい内容を印字する.
-                 (cond (trace-enabled
-                        (newline)
-                        (display (list 'register-name '= name 'old-value '= contents 'new-value '= value))))
-                 (set! contents value))))
+               ; レジスタをトレースする時は, レジスタへの値の代入では, レジスタ名, レジスタの古い内容と代入する新しい内容を印字する.
+               (if trace-enabled
+                   (begin
+                     (newline)
+                     (display (list 'register-name '= name 'old-value '= contents 'new-value '= value))))
+               (set! contents value)))
             ; レジスタはトレースを開始と停止するメッセージを受け入れる. 
             ((eq? message 'enable-tracing)
              (set! trace-enabled true))
