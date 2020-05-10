@@ -111,6 +111,13 @@
                     (cons (list label (remove n (cadr breakpoint-entry)))
                           breakpoint-table))))
         'breakpoint-deleted)
+      (define (breakpoint?)
+        (let ((breakpoint-entry (assoc current-lable breakpoint-table)))
+          (if (and (not breaking) breakpoint-entry)
+              (if (member current-lable-counter (cadr breakpoint-entry))
+                  true
+                  false)
+              false)))
       (define (execute)
         (let ((insts (get-contents pc)))
           (if (null? insts)
@@ -124,22 +131,16 @@
                           (if (not (eq? (cadaar insts) current-lable))
                               (set! current-lable (cadaar insts))))
                         (set! current-lable-counter (+ current-lable-counter 1))))
-                (let ((breakpoint-entry (assoc current-lable breakpoint-table)))
-                  (if (and (not breaking) breakpoint-entry)
-                      ; ラベルとブレークポイントの距離を印字し, 命令の実行を停止する
-                      (if (member current-lable-counter (cadr breakpoint-entry))
-                          (begin
-                            (newline)
-                            (display (list current-lable '= current-lable-counter))
-                            (set! breaking #t))
-                          (begin
-                            (set! breaking #f)
-                            ((instruction-execution-proc (car insts)))
-                            (execute)))
-                      (begin
-                        (set! breaking #f)
-                        ((instruction-execution-proc (car insts)))
-                        (execute))))))))
+                (if (breakpoint?)
+                    ; ラベルとブレークポイントの距離を印字し, 命令の実行を停止する
+                    (begin
+                      (set! breaking true)
+                      (newline)
+                      (display (list current-lable '= current-lable-counter)))
+                    (begin
+                      (set! breaking false)
+                      ((instruction-execution-proc (car insts)))
+                      (execute)))))))
       (define (dispatch message)
         (cond ((eq? message 'start)
                (set-contents! pc the-instruction-sequence)
