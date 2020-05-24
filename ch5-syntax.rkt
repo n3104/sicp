@@ -14,10 +14,11 @@
 
 (define (text-of-quotation exp) (cadr exp))
 
-(define (tagged-list? exp tag)
-  (if (pair? exp)
-      (eq? (car exp) tag)
-      false))
+; Commented out. tagged-list was aleady defined ch5-regsim.rkt.
+;(define (tagged-list? exp tag)
+;  (if (pair? exp)
+;      (eq? (car exp) tag)
+;      false))
 
 
 (define (variable? exp) (symbol? exp))

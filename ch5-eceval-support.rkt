@@ -3,7 +3,8 @@
 
 ;;;;FIRST A LOT FROM 4.1.2-4.1.4
 
-(load "ch5-syntax.scm");               ;section 4.1.2 syntax procedures
+; Commented out. I'm not sure how to use load function under neil/sicp environment.
+;(load "ch5-syntax.scm");               ;section 4.1.2 syntax procedures
 
 ;;;SECTION 4.1.3
 ;;; operations used by compiled code and eceval except as noted
@@ -172,7 +173,7 @@
 (define (get-global-environment)
   the-global-environment)
 ;; will do following when ready to run, not when load this file
-;;(define the-global-environment (setup-environment))
+(define the-global-environment (setup-environment))
 
 
 ;;; Simulation of new machine operations needed for compiled code
