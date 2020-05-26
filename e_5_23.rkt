@@ -35,6 +35,8 @@
    (list 'if-predicate if-predicate)
    (list 'if-consequent if-consequent)
    (list 'if-alternative if-alternative)
+   (list 'cond? cond?)
+   (list 'cond->if cond->if)
    (list 'begin? begin?)
    (list 'begin-actions begin-actions)
    (list 'last-exp? last-exp?)
@@ -119,6 +121,8 @@ eval-dispatch
   (branch (label ev-definition))
   (test (op if?) (reg exp))
   (branch (label ev-if))
+  (test (op cond?) (reg exp))
+  (branch (label ev-cond))
   (test (op lambda?) (reg exp))
   (branch (label ev-lambda))
   (test (op begin?) (reg exp))
@@ -248,6 +252,10 @@ ev-if-alternative
   (goto (label eval-dispatch))
 ev-if-consequent
   (assign exp (op if-consequent) (reg exp))
+  (goto (label eval-dispatch))
+
+ev-cond
+  (assign exp (op cond->if) (reg exp))
   (goto (label eval-dispatch))
 
 ev-assignment

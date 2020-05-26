@@ -125,6 +125,7 @@
 	(list '/ /)
 	(list '> >)
 	(list '< <)
+	(list 'eq? eq?)
         ))
 
 (define (primitive-procedure-names)
