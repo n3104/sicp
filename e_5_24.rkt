@@ -36,7 +36,10 @@
    (list 'if-consequent if-consequent)
    (list 'if-alternative if-alternative)
    (list 'cond? cond?)
-   (list 'cond->if cond->if)
+   (list 'cond-clauses cond-clauses)
+   (list 'cond-predicate cond-predicate)
+   (list 'cond-actions cond-actions)
+   (list 'cond-else-clause? cond-else-clause?)
    (list 'begin? begin?)
    (list 'begin-actions begin-actions)
    (list 'last-exp? last-exp?)
@@ -255,8 +258,32 @@ ev-if-consequent
   (goto (label eval-dispatch))
 
 ev-cond
-  (assign exp (op cond->if) (reg exp))
+  (assign exp (op cond-clauses) (reg exp))
+ev-cond-clauses
+  (assign unev (op first-exp) (reg exp))
+  (test (op cond-else-clause?) (reg unev))
+  (branch (label ev-cond-sequence))
+
+  (save exp)
+  (save env)
+  (save continue)
+  (assign continue (label ev-cond-decide))
+  (assign exp (op cond-predicate) (reg unev))
   (goto (label eval-dispatch))
+ev-cond-sequence
+  (assign unev (op cond-actions) (reg unev))
+  (save continue)
+  (goto (label ev-sequence))
+ev-cond-decide
+  (restore continue)
+  (restore env)
+  (restore exp)
+  (assign unev (op first-exp) (reg exp))
+  (test (op true?) (reg val))
+  (branch (label ev-cond-sequence))
+ev-cond-next
+  (assign exp (op rest-exps) (reg exp))
+  (goto (label ev-cond-clauses))
 
 ev-assignment
   (assign unev (op assignment-variable) (reg exp))
