@@ -216,9 +216,9 @@ ev-begin
   (goto (label ev-sequence))
 
 ev-sequence
+  (test (op no-more-exps?) (reg unev))
+  (branch (label ev-sequence-end))
   (assign exp (op first-exp) (reg unev))
-  (test (op last-exp?) (reg unev))
-  (branch (label ev-sequence-last-exp))
   (save unev)
   (save env)
   (assign continue (label ev-sequence-continue))
@@ -228,9 +228,9 @@ ev-sequence-continue
   (restore unev)
   (assign unev (op rest-exps) (reg unev))
   (goto (label ev-sequence))
-ev-sequence-last-exp
+ev-sequence-end
   (restore continue)
-  (goto (label eval-dispatch))
+  (goto (reg continue))
 
 ;;;SECTION 5.4.3
 
