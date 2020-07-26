@@ -4,7 +4,7 @@
 (include "./ch5-5-syntax.rkt")
 (include "./ch5-compiler.rkt")
 
-(define (construct-arglist-right-to-left operand-codes)
+(define (construct-arglist-left-to-right operand-codes)
   (let ((operand-codes operand-codes))
     (if (null? operand-codes)
         (make-instruction-sequence '() '(argl)
@@ -16,12 +16,15 @@
                  '((assign argl (op list) (reg val)))))))
           (if (null? (cdr operand-codes))
               code-to-get-last-arg
-              (preserving '(env)
-               code-to-get-last-arg
-               (code-to-get-rest-args
-                (cdr operand-codes))))))))
+              (append-instruction-sequences
+               (preserving '(env)
+                code-to-get-last-arg
+                (code-to-get-rest-args
+                 (cdr operand-codes)))
+               (make-instruction-sequence '(argl) '(argl)
+                '((assign argl (op reverse) (reg argl))))))))))
 
-(set! construct-arglist construct-arglist-right-to-left)
+(set! construct-arglist construct-arglist-left-to-right)
 
 (define (display-compile-result result)
   (for-each (lambda (x) (display x) (newline))
