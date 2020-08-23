@@ -3,7 +3,7 @@
 
 ;;;;FIRST A LOT FROM 4.1.2-4.1.4
 
-(load "ch5-syntax.scm");               ;section 4.1.2 syntax procedures
+;(load "ch5-syntax.scm");               ;section 4.1.2 syntax procedures
 
 ;;;SECTION 4.1.3
 ;;; operations used by compiled code and eceval except as noted
@@ -147,13 +147,13 @@
 (define (announce-output string)
   (newline) (display string) (newline))
 
-(define (user-print object)
-  (if (compound-procedure? object)
-      (display (list 'compound-procedure
-                     (procedure-parameters object)
-                     (procedure-body object)
-                     '<procedure-env>))
-      (display object)))
+;(define (user-print object)
+;  (if (compound-procedure? object)
+;      (display (list 'compound-procedure
+;                     (procedure-parameters object)
+;                     (procedure-body object)
+;                     '<procedure-env>))
+;      (display object)))
 
 ;;; Simulation of new machine operations needed by
 ;;;  eceval machine (not used by compiled code)
