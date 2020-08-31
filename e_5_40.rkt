@@ -2,6 +2,7 @@
 
 (#%require (only racket include))
 (include "./ch5-5-syntax.rkt")
+(include "./ch5-eceval-support.rkt")
 ;(include "./ch5-compiler.rkt")
 
 ;;;SECTION 5.5.1
@@ -181,7 +182,8 @@
                 (const ,formals)
                 (reg argl)
                 (reg env))))
-     (compile-sequence (lambda-body exp) 'val 'return env))))
+     ; extend-environment 関数を流用したため vals にも formals を入れておく。
+     (compile-sequence (lambda-body exp) 'val 'return (extend-environment formals formals env)))))
 
 
 ;;;SECTION 5.5.3
@@ -372,7 +374,6 @@
   (for-each (lambda (x) (display x) (newline))
             (cons (car result) (cons (cadr result) (caddr result)))))
 
-(define the-empty-environment '())
 (display-compile-result
  (compile
   '(let ((x 3) (y 4))
