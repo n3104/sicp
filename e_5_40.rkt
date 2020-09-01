@@ -2,7 +2,6 @@
 
 (#%require (only racket include))
 (include "./ch5-5-syntax.rkt")
-(include "./ch5-eceval-support.rkt")
 ;(include "./ch5-compiler.rkt")
 
 ;;;SECTION 5.5.1
@@ -182,8 +181,8 @@
                 (const ,formals)
                 (reg argl)
                 (reg env))))
-     ; extend-environment 関数を流用したため vals にも formals を入れておく。
-     (compile-sequence (lambda-body exp) 'val 'return (extend-environment formals formals env)))))
+     ; 問題 5.41 を踏まえて単に cons でリストの先頭に formals を追加するようにした。
+     (compile-sequence (lambda-body exp) 'val 'return (cons formals env)))))
 
 
 ;;;SECTION 5.5.3
@@ -374,6 +373,7 @@
   (for-each (lambda (x) (display x) (newline))
             (cons (car result) (cons (cadr result) (caddr result)))))
 
+(define the-empty-environment '())
 (display-compile-result
  (compile
   '(let ((x 3) (y 4))
