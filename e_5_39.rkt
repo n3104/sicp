@@ -18,19 +18,17 @@
                 (frame-itr (+ counter 1) (enclosing-environment env))))))
     (frame-itr 0 env))
   (define (lookup-value displacement-number frame)
-    ; 変位数は変数がFrameに追加された順番になっているが、実際に探索する際は最後に追加された変数から探索するためインデックスに変換している。
-    (let ((displacement-index (- (length (frame-variables frame)) displacement-number 1)))
-      (define (variable-itr counter vars vals)
-        (cond ((null? vars)
-               (error "Unbound variable" address))
-              ((eq? counter displacement-index)
-               (let ((value (car vals)))
-                 (if (eq? value '*unassigned*)
-                     (error "Unbound variable" address)
-                     value)))
-              (else
-               (variable-itr (+ counter 1) (cdr vars) (cdr vals)))))
-      (variable-itr 0 (frame-variables frame) (frame-values frame))))
+    (define (variable-itr counter vars vals)
+      (cond ((null? vars)
+             (error "Unbound variable" address))
+            ((eq? counter displacement-number)
+             (let ((value (car vals)))
+               (if (eq? value '*unassigned*)
+                   (error "Unbound variable" address)
+                   value)))
+            (else
+             (variable-itr (+ counter 1) (cdr vars) (cdr vals)))))
+    (variable-itr 0 (frame-variables frame) (frame-values frame)))
   (let ((frame-number (car address)) (displacement-number (cadr address)))
     (let ((frame (lookup-frame frame-number env)))
       (lookup-value displacement-number frame))))
@@ -46,15 +44,14 @@
                 (frame-itr (+ counter 1) (enclosing-environment env))))))
     (frame-itr 0 env))
   (define (set-value displacement-number frame)
-    (let ((displacement-index (- (length (frame-variables frame)) displacement-number 1)))
-      (define (variable-itr counter vars vals)
-        (cond ((null? vars)
-               (error "Unbound variable" address))
-              ((eq? counter displacement-index)
-               (set-car! vals val))
-              (else
-               (variable-itr (+ counter 1) (cdr vars) (cdr vals)))))
-      (variable-itr 0 (frame-variables frame) (frame-values frame))))
+    (define (variable-itr counter vars vals)
+      (cond ((null? vars)
+             (error "Unbound variable" address))
+            ((eq? counter displacement-number)
+             (set-car! vals val))
+            (else
+             (variable-itr (+ counter 1) (cdr vars) (cdr vals)))))
+    (variable-itr 0 (frame-variables frame) (frame-values frame)))
   (let ((frame-number (car address)) (displacement-number (cadr address)))
     (let ((frame (lookup-frame frame-number env)))
       (set-value displacement-number frame))))
@@ -62,10 +59,7 @@
 ; 動作確認
 (#%require (only rackunit check-equal?))
 ; Frameが1つあるケース
-(define frame-a (extend-environment '() '() the-empty-environment))
-(define-variable! 'a 1 frame-a)
-(define-variable! 'b 2 frame-a)
-(define-variable! 'c 3 frame-a)
+(define frame-a (extend-environment '(a b c) '(1 2 3) the-empty-environment))
 
 (check-equal? (lookup-variable-value 'a frame-a) 1)
 (check-equal? (lookup-variable-value 'b frame-a) 2)
@@ -84,10 +78,7 @@
 (check-equal? (lookup-variable-value 'c frame-a) 13)
 
 ; Frameが2つあるケース
-(define frame-b (extend-environment '() '() frame-a))
-(define-variable! 'a 1 frame-b)
-(define-variable! 'b 2 frame-b)
-(define-variable! 'c 3 frame-b)
+(define frame-b (extend-environment '(a b c) '(1 2 3) frame-a))
 
 (check-equal? (lookup-variable-value 'a frame-b) 1)
 (check-equal? (lookup-variable-value 'b frame-b) 2)
