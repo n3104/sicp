@@ -98,7 +98,7 @@
 (define (compile-assignment exp target linkage env)
   (let ((var (assignment-variable exp))
         (get-value-code
-         (compile (assignment-value exp) 'val 'next))
+         (compile (assignment-value exp) 'val 'next env))
         (addr (find-variable exp env)))
     (end-with-linkage linkage env
      (preserving '(env)
@@ -152,10 +152,10 @@
         (after-if (make-label 'after-if)))
     (let ((consequent-linkage
            (if (eq? linkage 'next) after-if linkage)))
-      (let ((p-code (compile (if-predicate exp) 'val 'next))
+      (let ((p-code (compile (if-predicate exp) 'val 'next env))
             (c-code
              (compile
-              (if-consequent exp) target consequent-linkage))
+              (if-consequent exp) target consequent-linkage env))
             (a-code
              (compile (if-alternative exp) target linkage env)))
         (preserving '(env continue)
@@ -175,7 +175,7 @@
   (if (last-exp? seq)
       (compile (first-exp seq) target linkage env)
       (preserving '(env continue)
-       (compile (first-exp seq) target 'next)
+       (compile (first-exp seq) target 'next env)
        (compile-sequence (rest-exps seq) target linkage env))))
 
 ;;;lambda expressions
@@ -402,11 +402,16 @@
 (define the-empty-environment '())
 (display-compile-result
  (compile
-  '(let ((x 3) (y 4))
-    (lambda (a b c d e)
-      (let ((y (* a b x))
-            (z (+ c d x)))
-        (* x y z))))
+  '(define (f x)
+    (define (even? n)
+      (if (= n 0)
+          true
+          (odd? (- n 1))))
+    (define (odd? n)
+      (if (= n 0)
+          false
+          (even? (- n 1))))
+    true)
   'val
   'next
   the-empty-environment))
