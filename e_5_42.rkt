@@ -68,27 +68,53 @@
    (make-instruction-sequence '() (list target)
     `((assign ,target (const ,(text-of-quotation exp)))))))
 
+(define (find-variable var env)
+  (define (env-loop frame-number env)
+    (define (scan displacement-number vars env)
+      (cond ((null? vars)
+             (env-loop (+ frame-number 1) (cdr env)))
+            ((eq? var (car vars))
+             (list frame-number displacement-number))
+            (else (scan (+ displacement-number 1) (cdr vars) env))))
+    (if (null? env)
+        'not-found
+        (scan 0 (car env) env)))
+  (env-loop 0 env))
+
 (define (compile-variable exp target linkage env)
-  (end-with-linkage linkage env
-   (make-instruction-sequence '(env) (list target)
-    `((assign ,target
-              (op lookup-variable-value)
-              (const ,exp)
-              (reg env))))))
+  (let ((addr (find-variable exp env)))
+   (end-with-linkage linkage env
+    (make-instruction-sequence '(env) (list target)
+     (if (eq? addr 'not-found)
+      `((assign ,target
+                (op lookup-variable-value)
+                (const ,exp)
+                (reg env)))
+      `((assign ,target
+                (op lexical-address-lookup)
+                (const ,addr)
+                (reg env))))))))
 
 (define (compile-assignment exp target linkage env)
   (let ((var (assignment-variable exp))
         (get-value-code
-         (compile (assignment-value exp) 'val 'next)))
+         (compile (assignment-value exp) 'val 'next))
+        (addr (find-variable exp env)))
     (end-with-linkage linkage env
      (preserving '(env)
       get-value-code
       (make-instruction-sequence '(env val) (list target)
-       `((perform (op set-variable-value!)
-                  (const ,var)
-                  (reg val)
-                  (reg env))
-         (assign ,target (const ok))))))))
+       (if (eq? addr 'not-found)
+        `((perform (op set-variable-value!)
+                   (const ,var)
+                   (reg val)
+                   (reg env))
+          (assign ,target (const ok)))
+        `((perform (op lexical-address-set!)
+                   (const ,addr)
+                   (reg val)
+                   (reg env))
+          (assign ,target (const ok)))))))))
 
 (define (compile-definition exp target linkage env)
   (let ((var (definition-variable exp))
