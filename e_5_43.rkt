@@ -207,8 +207,53 @@
                 (const ,formals)
                 (reg argl)
                 (reg env))))
-     ; 問題 5.41 を踏まえて単に cons でリストの先頭に formals を追加するようにした。
-     (compile-sequence (lambda-body exp) 'val 'return (cons formals env)))))
+     ; lambda-body に scan-out-defines を適用した。
+     (compile-sequence (scan-out-defines (lambda-body exp)) 'val 'return (cons formals env)))))
+
+; https://wizardbook.wordpress.com/2011/01/03/exercise-4-16/
+(define (scan-out-defines body)
+  (let ((defined-vars (definitions body)))
+    (if (null? defined-vars)  
+        body
+        (list 
+         (make-let-seq  
+          (unassigned-definitions defined-vars)
+          (unassigned-initialisations defined-vars)
+          (scanned-body body))))))
+ 
+(define (definitions exp)
+  (define (scan-iter body definitions-complete)
+    (cond ((null? body) nil)
+          ((definition? (car body))
+           (if definitions-complete
+               (error "define cannot appear in an expression context - DEFINITIONS" exp)
+               (cons (car body) 
+                     (scan-iter (cdr body) #f))))
+          (else (scan-iter (cdr body) #t))))
+  (scan-iter exp #f))
+ 
+(define (make-let-seq unassigned-vars initial-values body)
+  (append (list 'let unassigned-vars)
+          initial-values 
+          body))
+ 
+(define (unassigned-definitions define-list)
+  (map (lambda (def)  
+         (list (definition-variable def) 
+               '(quote *unassigned*)))
+       define-list))
+ 
+(define (unassigned-initialisations define-list)
+  (map (lambda (def)  
+         (list 'set! (definition-variable def) 
+               (definition-value def)))
+       define-list))
+ 
+(define (scanned-body body)
+  (cond ((null? body) body)
+        ((definition? (car body)) (scanned-body (cdr body))) 
+        (else (cons (car body) 
+                    (scanned-body (cdr body))))))
 
 
 ;;;SECTION 5.5.3
