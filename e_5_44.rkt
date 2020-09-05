@@ -23,6 +23,8 @@
                            target
                            linkage env))
         ((cond? exp) (compile (cond->if exp) target linkage env))
+        ((open-code-operator? exp env)
+         (compile-open-code exp target linkage env))
         ((application? exp)
          (compile-application exp target linkage env))
         (else
@@ -438,6 +440,34 @@
                (registers-modified seq2))
    (append (statements seq1) (statements seq2))))
 
+; https://www.serendip.ws/archives/3862
+(define (overwrite? operator env)
+  (let ((addr (find-variable operator env)))
+       (eq? addr 'not-found)))
+
+(define (open-code-operator? exp env)
+  (and (memq (car exp) '(+ - * / =))
+       (overwrite? (operator exp) env)))
+
+; https://www.serendip.ws/archives/3757
+(define (spread-arguments a1 a2 env)
+  (let ((ca1 (compile a1 'arg1 'next env))
+        (ca2 (compile a2 'arg2 'next env)))
+       (list ca1 ca2)))
+
+(define (compile-open-code exp target linkage env)
+  (if (= (length exp) 3)
+      (let ((op (car exp)) ; 演算子
+            (args (spread-arguments (cadr exp) (caddr exp) env))) ; 被演算子をコンパイル
+           (end-with-linkage linkage env
+                             (append-instruction-sequences
+                               (car args)
+                               (preserving '(arg1)
+                                           (cadr args)
+                                           (make-instruction-sequence '(arg1 arg2) (list target)
+                                                                      `((assign ,target (op ,op) (reg arg1) (reg arg2))))))))
+      (error "Require 3 elements -- COMPILE-OPEN-CODE" exp)))
+
 '(COMPILER LOADED)
 
 (define (display-compile-result result)
@@ -447,16 +477,8 @@
 (define the-empty-environment '())
 (display-compile-result
  (compile
-  '(define (f x)
-    (define (even? n)
-      (if (= n 0)
-          true
-          (odd? (- n 1))))
-    (define (odd? n)
-      (if (= n 0)
-          false
-          (even? (- n 1))))
-    true)
+  '(lambda (+ a b x y)
+    (+ (* a x) (* b y)))
   'val
   'next
   the-empty-environment))
