@@ -9,13 +9,13 @@
 (include "./ch5-5-eceval-support.rkt")
 (include "./ch5-eceval-compiler.rkt")
 
-;a.
-;> (compile-and-go
-; '(define (factorial n)
-;    (if (= n 1)
-;        1
-;        (* (factorial (- n 1)) n))))
-;
+; a.
+(compile-and-go
+ '(define (factorial n)
+    (if (= n 1)
+        1
+        (* (factorial (- n 1)) n))))
+
 ;(total-pushes = 0 maximum-depth = 0)
 ;;;; EC-Eval value:
 ;ok
