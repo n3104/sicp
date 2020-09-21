@@ -45,6 +45,23 @@
     (set-register-contents! eceval 'val instructions)
     (set-register-contents! eceval 'flag true)
     (start eceval)))
+
+
+(define (compile-and-run? proc)
+  (tagged-list? proc 'compile-and-run))
+
+(define (expression exp) (cadadr exp))
+
+(define (compile-and-run expression)
+  (let ((instructions
+         (assemble (statements
+                    (compile expression 'val 'return))
+                   eceval)))
+;    (set! the-global-environment (setup-environment))
+    (set-register-contents! eceval 'val instructions)
+    (set-register-contents! eceval 'flag true)
+    (start eceval)))
+
 
 ;;**NB. To [not] monitor stack operations, comment in/[out] the line after
 ;; print-result in the machine controller below
@@ -117,6 +134,10 @@
    (list 'compiled-procedure? compiled-procedure?)
    (list 'compiled-procedure-entry compiled-procedure-entry)
    (list 'compiled-procedure-env compiled-procedure-env)
+
+   (list 'compile-and-run? compile-and-run?)
+   (list 'expression expression)
+   (list 'compile-and-run compile-and-run)
    ))
 
 (define eceval
@@ -185,6 +206,8 @@ eval-dispatch
   (branch (label ev-lambda))
   (test (op begin?) (reg exp))
   (branch (label ev-begin))
+  (test (op compile-and-run?) (reg exp))
+  (branch (label ev-compile-and-run))
   (test (op application?) (reg exp))
   (branch (label ev-application))
   (goto (label unknown-expression-type))
@@ -276,6 +299,7 @@ compound-apply
   (assign unev (op procedure-body) (reg proc))
   (goto (label ev-sequence))
 
+
 ;;;SECTION 5.4.2
 ev-begin
   (assign unev (op begin-actions) (reg exp))
@@ -354,7 +378,49 @@ ev-definition-1
    (op define-variable!) (reg unev) (reg val) (reg env))
   (assign val (const ok))
   (goto (reg continue))
+
+ev-compile-and-run
+  (assign unev (op expression) (reg exp))
+  (perform (op compile-and-run) (reg unev))
    )))
+
 
 '(EXPLICIT CONTROL EVALUATOR FOR COMPILER LOADED)
 
+
+(start-eceval)
+
+; 動作確認結果
+;;;; EC-Eval input:
+;(compile-and-run
+; '(define (factorial n)
+;    (if (= n 1)
+;        1
+;        (* (factorial (- n 1)) n))))
+;
+;(total-pushes = 0 maximum-depth = 0)
+;;;; EC-Eval value:
+;ok
+;
+;;;; EC-Eval input:
+;(factorial 5)
+;
+;(total-pushes = 31 maximum-depth = 14)
+;;;; EC-Eval value:
+;120
+;
+;;;; EC-Eval input:
+;(compile-and-run
+; '(define (factorial-5)
+;    (factorial 5)))
+;
+;(total-pushes = 0 maximum-depth = 0)
+;;;; EC-Eval value:
+;ok
+;
+;;;; EC-Eval input:
+;(factorial-5)
+;
+;(total-pushes = 29 maximum-depth = 14)
+;;;; EC-Eval value:
+;120
